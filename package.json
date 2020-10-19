@@ -1,0 +1,36 @@
+{
+  "name": "ahu-bom-server",
+  "version": "1.0.0",
+  "description": "backend-xlsx",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon app.js"
+  },
+  "author": "Hablu",
+  "license": "MIT",
+  "dependencies": {
+    "async": "^3.2.0",
+    "bcrypt": "^4.0.1",
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "edge": "^7.10.1",
+    "edge-js": "^14.3.1",
+    "exceljs": "^4.1.1",
+    "express": "^4.17.1",
+    "googleapis": "^39.2.0",
+    "hot-formula-parser": "^3.0.2",
+    "http": "0.0.1-security",
+    "jsonwebtoken": "^8.5.1",
+    "mime": "^2.4.6",
+    "mysql": "^2.18.1",
+    "nodemon": "^2.0.2",
+    "password-hash-and-salt": "^0.1.4",
+    "path": "^0.12.7",
+    "read-excel-file": "^4.0.6",
+    "w3c-xmlhttprequest": "^2.2.0",
+    "xlsx": "^0.16.4",
+    "xmlhttprequest": "^1.8.0"
+  }
+}
