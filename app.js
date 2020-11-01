@@ -149,6 +149,11 @@ app.post('/casingCalc', function (req, res) {
 
       
       var profiles = imData.filter(i => (i.Item_Group === 'ALUMINIUM PROFILES'));
+      
+      var plasticParts = imData.filter(i => (i.Item_Group === 'PLASTIC PARTS'));
+
+      
+      var polyol = imData.filter(i => (i.Item_Group === 'POLYOL'));
 
       // imData.forEach(i =>{
         
@@ -174,6 +179,13 @@ app.post('/casingCalc', function (req, res) {
         qty: calcdata[0].corner_profile, uom: ProfileData[0].Unit, totalQty: calcdata[0].corner_profile * req.body.ahuQty
       }
       var omegaProfile = {
+        part_code: ProfileData[1].Code,
+        description: 'Omega Profile', specification: ProfileData[1].Name, type: '',
+        qty: calcdata[0].omega_profile, uom: ProfileData[1].Unit, totalQty: calcdata[0].omega_profile * req.body.ahuQty
+      }
+      var JoinerData = plasticParts.filter(i => (i.Description == req.body.unitForm.profileType));
+      console.log(JoinerData);
+      var cornerJoiner = {
         part_code: ProfileData[1].Code,
         description: 'Omega Profile', specification: ProfileData[1].Name, type: '',
         qty: calcdata[0].omega_profile, uom: ProfileData[1].Unit, totalQty: calcdata[0].omega_profile * req.body.ahuQty
