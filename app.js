@@ -21,7 +21,7 @@ const Excel = require('exceljs');
 const workbook = new Excel.Workbook();
 const calcworkbook = new Excel.Workbook();
 
-//const jsonParser = bodyParser.json();
+const jsonParser = bodyParser.json();
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -33,6 +33,10 @@ app.use(cors());
 
 app.post('/casingCalc', function (req, res) {
   let calcdata = [];
+  var workbookItem = XLSX.readFile('./data/item_master.xlsx');
+  var sheet_name_list1 = workbookItem.SheetNames;
+  var imData = XLSX.utils.sheet_to_json(workbookItem.Sheets[sheet_name_list1[0]])
+  // res.send(imData);
   console.log(req.body);
   let wb = XLSX.readFile('./data/calc/casing.xlsx');
   let ws = wb.Sheets['Sheet2'];
@@ -65,7 +69,7 @@ app.post('/casingCalc', function (req, res) {
       console.log(req.body);
       worksheet.getCell('A2').value = req.body.unitForm.innerSheet.Description;
       worksheet.getCell('B2').value = req.body.unitForm.outerSheet.Description;
-
+      console.log(req.body.unitForm.innerSheet.Description, 'hhhh');
       var supplyLength = { sl: req.body.unitForm.supplyDimension };
       var exhaustLength = { el: req.body.unitForm.exhaustDimension };
       const supplyLengthSum = Object.values(supplyLength).reduce((a, v) => a += v.reduce((a, ob) => a += ob.length, 0), 0);
@@ -143,6 +147,13 @@ app.post('/casingCalc', function (req, res) {
       console.log(calcdata);
       // console.log(workbook);
 
+      
+      var profiles = imData.filter(i => (i.Item_Group === 'ALUMINIUM PROFILES'));
+
+      // imData.forEach(i =>{
+        
+      // })
+
       var ahuCasing = req.body.unitForm;
       let ahuCasingData = [];
       var innerSkin = {
@@ -155,8 +166,21 @@ app.post('/casingCalc', function (req, res) {
         description: 'Casing Outer Sheet', specification: req.body.unitForm.outerSheet.Name, type: '',
         qty: calcdata[0].outer_sheet_weight, uom: req.body.unitForm.outerSheet.Unit, totalQty: calcdata[0].outer_sheet_weight * req.body.ahuQty
       }
-      ahuCasingData.push(innerSkin, outerSkin);
-      console.log(ahuCasingData);
+      var ProfileData = profiles.filter(i => (i.Description === req.body.unitForm.profileType));
+      console.log(ProfileData);
+      var cornerProfile = {
+        part_code: ProfileData[0].Code,
+        description: 'Corner Profile', specification: ProfileData[0].Name, type: '',
+        qty: calcdata[0].corner_profile, uom: ProfileData[0].Unit, totalQty: calcdata[0].corner_profile * req.body.ahuQty
+      }
+      var omegaProfile = {
+        part_code: ProfileData[1].Code,
+        description: 'Omega Profile', specification: ProfileData[1].Name, type: '',
+        qty: calcdata[0].omega_profile, uom: ProfileData[1].Unit, totalQty: calcdata[0].omega_profile * req.body.ahuQty
+      }
+
+      ahuCasingData.push(innerSkin, outerSkin, cornerProfile,omegaProfile);
+      // console.log(ahuCasingData);
 
       var sheet1 = workbook.getWorksheet(1);
       sheet1.columns
@@ -178,7 +202,7 @@ app.post('/casingCalc', function (req, res) {
         { key: 'sno', width: 15 },
         { key: 'PART_CODE', width: 15 },
         { key: 'DESCRIPTION', width: 15 },
-        { key: 'SPECIFICATION', width: 15 },
+        { key: 'SPECIFICATION', width: 50 },
         { key: 'TYPE', width: 15 },
         { key: 'QTY', width: 15 },
         { key: 'UOM', width: 15 },
@@ -215,6 +239,7 @@ app.post('/casingCalc', function (req, res) {
 })
 
 app.get('/download', function (req, res) {
+  console.log('Hi');
   var file = path.join(`${__dirname}/data/calc/new_bom.xlsx`);
   res.setHeader('Content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
   res.download(file, 'New Bom.xlsx');
@@ -278,44 +303,51 @@ app.get('/fetchCasing', function (req, res) {
 
 // const jsonParser = bodyParser.json();
 
-// app.get('/itemMasterData',jsonParser, function(req, res){
-//   var workbook = XLSX.readFile('./data/item_master.xlsx');
-// var sheet_name_list = workbook.SheetNames;
-// res.send(XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]))
-// // console.log(XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[1]]))
-// // sheet_name_list.forEach(function(y) {
-// //     var worksheet = workbook.Sheets[y];
-// //     var headers = {};
-// //     var data = [];
-// //     for(z in worksheet) {
-// //         if(z[0] === '!') continue;
-// //         //parse out the column, row, and value
-// //         var tt = 0;
-// //         for (var i = 0; i < z.length; i++) {
-// //             if (!isNaN(z[i])) {
-// //                 tt = i;
-// //                 break;
-// //             }
-// //         };
-// //         var col = z.substring(0,tt);
-// //         var row = parseInt(z.substring(tt));
-// //         var value = worksheet[z].v;
+app.get('/itemMasterData',jsonParser, function(req, res){
+  var workbookItem = XLSX.readFile('./data/item_master.xlsx');
+var sheet_name_list1 = workbookItem.SheetNames;
+var imData = XLSX.utils.sheet_to_json(workbookItem.Sheets[sheet_name_list1[0]])
+var profiles = imData.filter(i => (i.Item_Group === 'ALUMINIUM PROFILES'));
+let profile_desc = []
+profiles.forEach(i => {
+  profile_desc.push(i.Description);
+})
+      // console.log(profiles);
+res.send(profile_desc);
+// console.log(XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[1]]))
+// sheet_name_list.forEach(function(y) {
+//     var worksheet = workbook.Sheets[y];
+//     var headers = {};
+//     var data = [];
+//     for(z in worksheet) {
+//         if(z[0] === '!') continue;
+//         //parse out the column, row, and value
+//         var tt = 0;
+//         for (var i = 0; i < z.length; i++) {
+//             if (!isNaN(z[i])) {
+//                 tt = i;
+//                 break;
+//             }
+//         };
+//         var col = z.substring(0,tt);
+//         var row = parseInt(z.substring(tt));
+//         var value = worksheet[z].v;
 
-// //         //store header names
-// //         if(row == 1 && value) {
-// //             headers[col] = value;
-// //             continue;
-// //         }
+//         //store header names
+//         if(row == 1 && value) {
+//             headers[col] = value;
+//             continue;
+//         }
 
-// //         if(!data[row]) data[row]={};
-// //         data[row][headers[col]] = value;
-// //     }
-// //     //drop those first two rows which are empty
-// //     data.shift();
-// //     data.shift();
-// //     res.send(data);
-// // });
+//         if(!data[row]) data[row]={};
+//         data[row][headers[col]] = value;
+//     }
+//     //drop those first two rows which are empty
+//     data.shift();
+//     data.shift();
+//     res.send(data);
 // });
+});
 
 app.use('/', (req, res) => { res.send('Welcome to AHU-BOM Data Server') });
 app.listen(3200, () => console.log('Server is running at PORT no. :' + 3200));
