@@ -158,6 +158,8 @@ app.post('/casingCalc', function (req, res) {
       
       var polyol = imData.filter(i => (i.Item_Group === 'POLYOL'));
       var isol = imData.filter(i => (i.Item_Group === 'ISO-CYNATE'));
+      var gasket = imData.filter(i => (i.Item_Group === 'GASKET & INSULATION'));
+      var fastners = imData.filter(i => (i.Item_Group === 'FASTENERS'));
 
       // imData.forEach(i =>{
         
@@ -222,6 +224,28 @@ app.post('/casingCalc', function (req, res) {
         }
         ahuCasingData.push(rockwool)
       }
+
+      var gasket_panel = gasket.filter(i => (i.Description === 'Panel'));
+      var fastners_panel = fastners.filter(i => (i.Description === 'Panel'));
+      const gasketQty = 8
+
+      var gasketPanel_entry ={
+        part_code: gasket_panel[0].Code,
+        description: 'EPDM Panel Gasket', specification: gasket_panel[0].Name, type: '',
+        qty: gasketQty, uom: gasket_panel[0].Unit, totalQty: gasketQty * req.body.ahuQty
+      }
+      var fastnersPanel_entry1 ={
+        part_code: fastners_panel[0].Code,
+        description: 'Panel fixing Screws', specification: fastners_panel[0].Name, type: '',
+        qty: (gasketQty*10/0.3), uom: fastners_panel[0].Unit, totalQty: (gasketQty*10/0.3) * req.body.ahuQty
+      }
+      var fastnersPanel_entry2 ={
+        part_code: fastners_panel[0].Code,
+        description: 'Blank off, Omega , drain tray fixing Screws', specification: fastners_panel[0].Name, type: '',
+        qty: 100, uom: fastners_panel[0].Unit, totalQty: 100 * req.body.ahuQty
+      }
+
+      ahuCasingData.push(gasketPanel_entry, fastnersPanel_entry1, fastnersPanel_entry2)
 
       // console.log(ahuCasingData);
 
