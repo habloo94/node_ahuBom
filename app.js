@@ -8,6 +8,7 @@ const HTTP = require('http');
 // var FileSaver = require('file-saver');
 var path = require('path');
 var cors = require('cors');
+const moment = require('moment');
 // var mime = require('mime');
 // const Blob = require('cross-blob');
 // const { request } = require('http');
@@ -15,6 +16,8 @@ var cors = require('cors');
 
 const FormulaParser = require('hot-formula-parser').Parser;
 const parser = new FormulaParser();
+
+// console.log(moment().format("DD-MMM-YYYY"));
 
 const Excel = require('exceljs');
 // const { style } = require('@angular/animations');
@@ -154,6 +157,7 @@ app.post('/casingCalc', function (req, res) {
 
       
       var polyol = imData.filter(i => (i.Item_Group === 'POLYOL'));
+      var isol = imData.filter(i => (i.Item_Group === 'ISO-CYNATE'));
 
       // imData.forEach(i =>{
         
@@ -184,14 +188,41 @@ app.post('/casingCalc', function (req, res) {
         qty: calcdata[0].omega_profile, uom: ProfileData[1].Unit, totalQty: calcdata[0].omega_profile * req.body.ahuQty
       }
       var JoinerData = plasticParts.filter(i => (i.Description == req.body.unitForm.profileType));
-      console.log(JoinerData);
+      // console.log(JoinerData, 'fdsf');
       var cornerJoiner = {
-        part_code: ProfileData[1].Code,
-        description: 'Omega Profile', specification: ProfileData[1].Name, type: '',
-        qty: calcdata[0].omega_profile, uom: ProfileData[1].Unit, totalQty: calcdata[0].omega_profile * req.body.ahuQty
+        part_code: JoinerData[0].Code,
+        description: 'Corner Joiner', specification: JoinerData[0].Name, type: '',
+        qty: 8, uom: JoinerData[0].Unit, totalQty: 8 * req.body.ahuQty
+      }
+      var omegaJoiner = {
+        part_code: JoinerData[1].Code,
+        description: 'Omega Joiner', specification: JoinerData[1].Name, type: '',
+        qty: 44, uom: JoinerData[1].Unit, totalQty: 44 * req.body.ahuQty
+      }
+      
+      ahuCasingData.push(innerSkin, outerSkin, cornerProfile,omegaProfile,cornerJoiner, omegaJoiner);
+      
+      if(req.body.unitForm.insulation == 'PUF'){
+        var insulation_polyol = {
+          part_code: polyol[0].Code,
+          description: 'Polyol', specification: polyol[0].Name, type: '',
+          qty: calcdata[0].polyol, uom: polyol[0].Unit, totalQty: calcdata[0].polyol * req.body.ahuQty
+        }
+        var insulation_isol = {
+          part_code: isol[0].Code,
+          description: 'Isol', specification: isol[0].Name, type: '',
+          qty: calcdata[0].isol, uom: isol[0].Unit, totalQty: calcdata[0].isol * req.body.ahuQty
+        }
+        ahuCasingData.push(insulation_polyol, insulation_isol);
+      } else {
+        var rockwool = {
+          part_code: '',
+          description: 'Others', specification: '', type: '',
+          qty: '', uom: '', totalQty: ''
+        }
+        ahuCasingData.push(rockwool)
       }
 
-      ahuCasingData.push(innerSkin, outerSkin, cornerProfile,omegaProfile);
       // console.log(ahuCasingData);
 
       var sheet1 = workbook.getWorksheet(1);
@@ -203,7 +234,7 @@ app.post('/casingCalc', function (req, res) {
       sheet1.getCell(5, 3).value = req.body.unitForm.airVolume;
       sheet1.getCell('C6').value = req.body.ahuQty;
       sheet1.getCell('C7').value = req.body.ahuModel;
-      sheet1.getCell('D6').value = 'DATE                  :    ' + (new Date());
+      sheet1.getCell('D6').value = 'DATE                  :    ' + (moment().format("DD-MMM-YYYY"));
       sheet1.mergeCells('A9:H9');
       sheet1.getCell('A9').alignment = { horizontal: 'center', vertical: 'middle' };
       // sheet1.getCell('A9').style = {fill: {bgColor : '#808080'}}
