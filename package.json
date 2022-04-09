@@ -24,7 +24,7 @@
     "http": "0.0.1-security",
     "jsonwebtoken": "^8.5.1",
     "mime": "^2.4.6",
-    "moment": "^2.29.1",
+    "moment": "^2.29.2",
     "mysql": "^2.18.1",
     "nodemon": "^2.0.2",
     "password-hash-and-salt": "^0.1.4",
