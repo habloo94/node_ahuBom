@@ -29,7 +29,7 @@
     "nodemon": "^2.0.2",
     "password-hash-and-salt": "^0.1.4",
     "path": "^0.12.7",
-    "read-excel-file": "^4.0.6",
+    "read-excel-file": "^4.1.0",
     "w3c-xmlhttprequest": "^2.2.0",
     "xlsx": "^0.16.4",
     "xmlhttprequest": "^1.8.0"
